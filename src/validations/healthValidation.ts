@@ -2,7 +2,6 @@ import { z } from "zod";
 import { ParameterType } from "../types/health";
 
 const BaseLogSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
   timestamp: z.string().datetime({ message: "Invalid ISO timestamp" }),
   notes: z.string().optional(),
 });

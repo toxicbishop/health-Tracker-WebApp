@@ -14,14 +14,16 @@ class GoogleSheetsService {
     this.spreadsheetId = process.env.GOOGLE_SHEET_ID || "";
 
     if (!keyData || !this.spreadsheetId) {
-      console.warn("[GoogleSheetsService]: Missing credentials or Spreadsheet ID in .env");
+      console.warn(
+        "[GoogleSheetsService]: Missing credentials or Spreadsheet ID in .env",
+      );
       return;
     }
 
     try {
       // Parse the service account key from the environment variable
       const credentials = JSON.parse(keyData);
-      
+
       this.auth = new google.auth.GoogleAuth({
         credentials,
         scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -57,7 +59,9 @@ class GoogleSheetsService {
         },
       });
 
-      console.log(`[GoogleSheetsService]: Successfully appended log for ${log.userId} (${log.type})`);
+      console.log(
+        `[GoogleSheetsService]: Successfully appended log for ${log.userId} (${log.type})`,
+      );
     } catch (error) {
       console.error("[GoogleSheetsService]: Append Error:", error);
       throw new Error("Failed to save data to Google Sheets");
@@ -87,6 +91,62 @@ class GoogleSheetsService {
     // Return a clean 6-column layout:
     // Timestamp | UserID | Type | Value | Unit | Notes
     return [timestamp, userId, type, value, unit, notes];
+  }
+
+  /**
+   * Auth Methods
+   */
+  async getUserByUsername(username: string): Promise<any | null> {
+    if (!this.sheets) return null;
+
+    try {
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: "Users!A:C",
+      });
+
+      const rows = response.data.values || [];
+      // Skip header row
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (row[1] === username) {
+          return { userId: row[0], username: row[1], passwordHash: row[2] };
+        }
+      }
+      return null;
+    } catch (error: any) {
+      // If the sheet "Users" doesn't exist, it throws a 400 error. Let's return null.
+      if (error?.code === 400) {
+        return null; // Sheet likely doesn't exist yet
+      }
+      throw error;
+    }
+  }
+
+  async createUser(
+    userId: string,
+    username: string,
+    passwordHash: string,
+  ): Promise<void> {
+    if (!this.sheets) return;
+
+    try {
+      await this.sheets.spreadsheets.values.append({
+        spreadsheetId: this.spreadsheetId,
+        range: "Users!A:C",
+        valueInputOption: "USER_ENTERED",
+        insertDataOption: "INSERT_ROWS",
+        requestBody: {
+          values: [[userId, username, passwordHash]],
+        },
+      });
+      console.log(
+        `[GoogleSheetsService]: Successfully created user ${username}`,
+      );
+    } catch (error) {
+      console.error("[GoogleSheetsService]: User Creation Error:", error);
+      throw new Error("Failed to save user data to Google Sheets");
+    }
   }
 }
 

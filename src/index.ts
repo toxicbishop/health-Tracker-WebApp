@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import healthRoutes from "./routes/healthRoutes";
+import authRoutes from "./routes/authRoutes";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -13,6 +14,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.use("/auth", authRoutes);
 app.use("/health-log", healthRoutes);
 
 app.get("/", (req, res) => {
