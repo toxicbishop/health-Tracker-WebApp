@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { googleSheetsService } from "./googleSheetsService";
+import User from "../models/User";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretfallbackkey"; // Better to have this in .env
 
@@ -10,7 +10,7 @@ export class AuthService {
     password: string,
   ): Promise<{ userId: string }> {
     // Check if user already exists
-    const existingUser = await googleSheetsService.getUserByUsername(username);
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
       throw new Error("Username already exists");
     }
@@ -19,20 +19,20 @@ export class AuthService {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Generate unique ID
-    const userId = "u_" + Math.random().toString(36).substring(2, 9);
+    // Save user in MongoDB
+    const newUser = await User.create({
+      username,
+      passwordHash,
+    });
 
-    // Save user
-    await googleSheetsService.createUser(userId, username, passwordHash);
-
-    return { userId };
+    return { userId: newUser._id.toString() };
   }
 
   async login(
     username: string,
     password: string,
   ): Promise<{ token: string; userId: string }> {
-    const user = await googleSheetsService.getUserByUsername(username);
+    const user = await User.findOne({ username });
     if (!user) {
       throw new Error("Invalid username or password");
     }
@@ -43,14 +43,14 @@ export class AuthService {
       throw new Error("Invalid username or password");
     }
 
-    // Generate JWT
-    const token = jwt.sign(
-      { userId: user.userId, username: user.username },
-      JWT_SECRET,
-      { expiresIn: "24h" },
-    );
+    const userId = user._id.toString();
 
-    return { token, userId: user.userId };
+    // Generate JWT
+    const token = jwt.sign({ userId, username: user.username }, JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    return { token, userId };
   }
 }
 
