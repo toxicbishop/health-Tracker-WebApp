@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { authService } from "../services/authService";
 import { validate } from "../middleware/validate";
 import { RegisterSchema, LoginSchema } from "../validations/authValidation";
+import { authenticateJWT } from "../middleware/authMiddleware";
 
 const router = Router();
 
@@ -34,6 +35,23 @@ router.post(
     } catch (error: any) {
       if (error.message === "Invalid username or password") {
         res.status(401).json({ status: "fail", message: error.message });
+        return;
+      }
+      next(error);
+    }
+  },
+);
+
+router.get(
+  "/me",
+  authenticateJWT,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await authService.getProfile(req.userId as string);
+      res.json({ message: "Profile fetched successfully", user });
+    } catch (error: any) {
+      if (error.message === "User not found") {
+        res.status(404).json({ status: "fail", message: error.message });
         return;
       }
       next(error);

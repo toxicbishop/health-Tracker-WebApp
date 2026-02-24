@@ -68,6 +68,61 @@ class GoogleSheetsService {
     }
   }
 
+  /**
+   * Retrieves health logs for a specific user from the spreadsheet
+   */
+  async getLogs(userId: string): Promise<HealthLog[]> {
+    if (!this.sheets) {
+      console.error("[GoogleSheetsService]: Sheets client not initialized");
+      return [];
+    }
+
+    try {
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: "Sheet1!A:F",
+      });
+
+      const rows = response.data.values;
+      if (!rows || rows.length === 0) return [];
+
+      const logs: HealthLog[] = [];
+
+      for (const row of rows) {
+        // Skip header row if necessary, here we assume all rows or manually filter
+        // Structure: Timestamp | UserID | Type | Value | Unit | Notes
+        const [timestamp, rowUserId, type, value, unit, notes] = row;
+
+        if (rowUserId === userId) {
+          let logObj: any = {
+            id: Math.random().toString(36).substring(2, 9),
+            timestamp,
+            userId: rowUserId,
+            type: type as ParameterType,
+            notes: notes || "",
+          };
+
+          if (type === ParameterType.WEIGHT) {
+            logObj.weight = parseFloat(value);
+            logObj.unit = unit;
+          } else if (type === ParameterType.BLOOD_PRESSURE) {
+            const [sys, dia] = value.split("/");
+            logObj.systolic = parseInt(sys, 10);
+            logObj.diastolic = parseInt(dia, 10);
+          } else if (type === ParameterType.HEART_RATE) {
+            logObj.bpm = parseInt(value, 10);
+          }
+          logs.push(logObj as HealthLog);
+        }
+      }
+
+      return logs;
+    } catch (error) {
+      console.error("[GoogleSheetsService]: Get Logs Error:", error);
+      throw new Error("Failed to retrieve data from Google Sheets");
+    }
+  }
+
   private mapLogToRow(log: HealthLog): any[] {
     const { timestamp, userId, type, notes = "" } = log;
     let value: string | number = "";

@@ -52,6 +52,20 @@ export class AuthService {
 
     return { token, userId };
   }
+  async getProfile(
+    userId: string,
+  ): Promise<{ username: string; id: string; createdAt: Date }> {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      createdAt: (user as any).createdAt,
+    };
+  }
 }
 
 export const authService = new AuthService();

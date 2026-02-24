@@ -9,9 +9,6 @@ import { authenticateJWT } from "../middleware/authMiddleware";
 
 const router = Router();
 
-// In-memory cache could still be used for GET but for Phase 4 we save to Sheets
-let healthLogs: HealthLog[] = [];
-
 /**
  * @route   POST /health-log
  * @desc    Create a new health log entry and save to Google Sheets
@@ -31,12 +28,10 @@ router.post(
       // Save to Google Sheets
       await googleSheetsService.appendLog(logData);
 
-      // Also keep in memory for the GET endpoint for now
       const newLog = {
         ...logData,
         id: Math.random().toString(36).substring(2, 9),
       };
-      healthLogs.push(newLog);
 
       console.log(
         `[API]: New health log added and saved to Sheets: ${newLog.type}`,
@@ -50,18 +45,15 @@ router.post(
 
 /**
  * @route   GET /health-log
- * @desc    Retrieve all health log entries
- * @access  Public (for now)
+ * @desc    Retrieve all health log entries for the logged-in user
+ * @access  Private
  */
-router.get("/", (req: Request, res: Response) => {
+router.get("/", authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { userId, type } = req.query;
+    const userId = req.userId as string;
+    const { type } = req.query;
 
-    let filteredLogs = healthLogs;
-
-    if (userId) {
-      filteredLogs = filteredLogs.filter((log) => log.userId === userId);
-    }
+    let filteredLogs = await googleSheetsService.getLogs(userId);
 
     if (type) {
       filteredLogs = filteredLogs.filter((log) => log.type === type);
