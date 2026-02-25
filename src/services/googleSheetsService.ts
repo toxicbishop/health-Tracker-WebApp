@@ -46,13 +46,26 @@ class GoogleSheetsService {
 
     try {
       // Map the log object to a row array
-      // Columns: Timestamp, UserID, Type, Value1, Value2, Unit, Notes
-      const values = this.mapLogToRow(log);
+      // Columns: Timestamp, UserID, Type, Value, Unit, Notes
+      const values = this.mapLogToRow(log).map((val) => {
+        // Prevent Formula Injection (CSV/Spreadsheet injection)
+        // If a string starts with characters that trigger formulas, escape them
+        if (
+          typeof val === "string" &&
+          (val.startsWith("=") ||
+            val.startsWith("+") ||
+            val.startsWith("-") ||
+            val.startsWith("@"))
+        ) {
+          return `'${val}`; // Prepend a single quote to treat as text
+        }
+        return val;
+      });
 
       await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
-        range: "Sheet1!A:F", // Adjusted for 6 columns now
-        valueInputOption: "USER_ENTERED",
+        range: "Sheet1!A:F",
+        valueInputOption: "RAW", // Use RAW to prevent formula interpretation
         insertDataOption: "INSERT_ROWS",
         requestBody: {
           values: [values],
