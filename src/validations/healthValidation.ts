@@ -23,13 +23,16 @@ export const BPLogSchema = BaseLogSchema.extend({
   systolic: z
     .number()
     .int()
-    .positive("Systolic must be a positive integer")
-    .max(300, "Systolic value is too high"),
+    .min(70, "Systolic pressure must be at least 70 mmHg")
+    .max(300, "Systolic pressure is too high (max 300 mmHg)"),
   diastolic: z
     .number()
     .int()
-    .positive("Diastolic must be a positive integer")
-    .max(200, "Diastolic value is too high"),
+    .min(40, "Diastolic pressure must be at least 40 mmHg")
+    .max(150, "Diastolic pressure is too high (max 150 mmHg)"),
+}).refine((data) => data.systolic > data.diastolic, {
+  message: "Systolic pressure must be greater than diastolic pressure",
+  path: ["systolic"],
 });
 
 export const HeartRateLogSchema = BaseLogSchema.extend({
