@@ -41,6 +41,6 @@ A Back-end wellness tracking application featuring a Node/Express backend that s
 - Successfully constructed and saved a `POST` Request Collection for easy, repeatable testing against `http://localhost:3000/health-log`.
 - Triggered sample JSON payloads verifying the entire stack: Request → Validation → Storage (Google Sheets) → `201 Created` Response.
 
-## Usage of This API
+### Usage of This API
 - Use POSTMAN 📮 to interact with this API.
 - This is Strictly an backend API.
