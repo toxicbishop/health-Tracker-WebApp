@@ -1,4 +1,4 @@
-# Health Tracker WebApp
+# Health Tracker Web API
 
 A Back-end API wellness tracking application featuring a Node/Express backend that saves structured health data directly to Google Sheets.
 
