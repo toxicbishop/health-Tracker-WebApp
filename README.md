@@ -1,10 +1,10 @@
 # Health Tracker WebApp
 
-A Back-end wellness tracking application featuring a Node/Express backend that saves structured health data directly to Google Sheets.
+A Back-end API wellness tracking application featuring a Node/Express backend that saves structured health data directly to Google Sheets.
 
 ---
 
-## 🚀 Project Milestones & Phases Completed
+## 🚀 Project Phases Completed
 
 ### Phase 1: Project Skeleton
 
