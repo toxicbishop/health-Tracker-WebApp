@@ -11,9 +11,9 @@ A Back-end API wellness tracking application featuring a Node/Express backend th
 The backend system relies on Express.js endpoints to manage health logs efficiently, passing through a Google Sheets integration.
 You can view or edit the architecture visually:
 
-![Backend Architecture](./backend_architecture.drawio.svg)
+![Backend Architecture](./backend_architecture.svg)
 
-_(Note: GitHub doesn't render raw `.drawio` files as images. To edit this diagram, open `backend_architecture.drawio` with the [Draw.io Extension](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio) in VS Code, make your changes, and then **Export as SVG** over `backend_architecture.drawio.svg` to update the image above)_
+_(Note: GitHub doesn't render raw `.drawio` files as images. To edit this diagram, open `backend_architecture.drawio` with the [Draw.io Extension](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio) in VS Code, make your changes, and then **Export as SVG** over `backend_architecture.svg` to update the image above)_
 
 ### Phase 1: Project Skeleton
 
