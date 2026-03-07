@@ -8,7 +8,7 @@ export const errorHandler = (
 ) => {
   const statusCode = err.statusCode || 500;
   
-  console.error(`[Error] ${req.method} ${req.url}:`, err);
+  console.error("[Error]", { method: req.method, url: req.url, error: err });
 
   res.status(statusCode).json({
     status: "error",
