@@ -4,11 +4,16 @@ export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const statusCode = err.statusCode || 500;
-  
-  console.error("[Error]", { method: req.method, url: req.url, error: err });
+
+  console.error(
+    "[Error] Method: %s, URL: %s, Error:",
+    req.method,
+    req.url,
+    err,
+  );
 
   res.status(statusCode).json({
     status: "error",
