@@ -30,5 +30,13 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.2",
     "zod": "^4.3.6"
+  },
+  "overrides": {
+    "minimatch": "^9.0.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimatch": "^9.0.7"
+    }
   }
 }
