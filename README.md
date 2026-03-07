@@ -4,7 +4,7 @@ A Back-end API wellness tracking application featuring a Node/Express backend th
 
 ---
 
-## 🚀 Project Phases Completed
+## Project Phases Completed
 
 ## Architecture Diagram
 
